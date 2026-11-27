@@ -1,82 +1,125 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { api } from '../services/api';
-import type { Page } from '../services/types';
+import type { Category, Page } from '../services/types';
 import { DramaGrid, Empty, ErrorState, LoadMore, Skeleton } from '../components/common';
+import { translateCategory, useLanguage } from '../i18n';
+
+function nextPage(last: Page, _pages: Page[], previous: string, cursors: string[]) {
+  return last.next && last.next !== previous && !cursors.includes(last.next)
+    ? last.next
+    : undefined;
+}
 
 export default function Categories() {
   const [params, setParams] = useSearchParams();
-  const selected = params.get('category') || '';
-  const query = useInfiniteQuery({
-    queryKey: ['catalog'],
+  const selectedId = params.get('category') || '';
+  const { language, t } = useLanguage();
+  const overview = useInfiniteQuery({
+    queryKey: ['catalog', 'category-index'],
     initialPageParam: '',
     queryFn: ({ pageParam, signal }) =>
       api<Page>(`dramas?cursor=${encodeURIComponent(pageParam)}`, signal),
-    getNextPageParam: (last, _, previous, cursors) =>
-      last.next && last.next !== previous && !cursors.includes(last.next) ? last.next : undefined,
+    getNextPageParam: nextPage,
+    staleTime: 5 * 60_000,
+  });
+  const categories = [
+    ...new Map(
+      overview.data?.pages
+        .flatMap((page) => page.categories || [])
+        .map((category) => [category.id, category]) || [],
+    ).values(),
+  ];
+  const selected = categories.find((category) => category.id === selectedId);
+  const feed = useInfiniteQuery({
+    queryKey: ['catalog', 'category', selectedId],
+    enabled: !!selectedId,
+    initialPageParam: '',
+    queryFn: ({ pageParam, signal }) =>
+      api<Page>(
+        `dramas?category_id=${encodeURIComponent(selectedId)}&cursor=${encodeURIComponent(pageParam)}`,
+        signal,
+      ),
+    getNextPageParam: nextPage,
+    staleTime: 60_000,
   });
   const items = [
     ...new Map(
-      query.data?.pages.flatMap((page) => page.items).map((item) => [item.id, item]) || [],
+      feed.data?.pages.flatMap((page) => page.items).map((item) => [item.id, item]) || [],
     ).values(),
   ];
-  const categories = [...new Set(items.flatMap((item) => item.tags))].sort((a, b) =>
-    a.localeCompare(b, 'vi'),
-  );
-  const filtered = selected ? items.filter((item) => item.tags.includes(selected)) : items;
+  const titleOf = (category: Category) => translateCategory(category.name, language);
 
   return (
     <div className="page-content categories-page">
       <div className="page-heading">
-        <p className="eyebrow">PINE COLLECTION</p>
-        <h1>Categories</h1>
-        <p className="lead">Khám phá phim theo chủ đề.</p>
+        <p className="eyebrow">{t('Pine collection')}</p>
+        <h1>{selected ? titleOf(selected) : t('Categories')}</h1>
+        <p className="lead">{t('Browse by category')}</p>
       </div>
-      {query.isPending ? (
-        <Skeleton />
-      ) : query.isError && !items.length ? (
-        <ErrorState error={query.error} retry={() => void query.refetch()} />
+      {overview.isPending ? (
+        <Skeleton count={6} />
+      ) : overview.isError ? (
+        <ErrorState error={overview.error} retry={() => void overview.refetch()} />
+      ) : selectedId && !selected ? (
+        <ErrorState error={new Error(t('Category is unavailable'))} retry={() => setParams({})} />
+      ) : selected ? (
+        <>
+          <button className="back-link category-back" onClick={() => setParams({})}>
+            <ArrowLeft size={18} /> {t('All categories')}
+          </button>
+          <div className="section-heading">
+            <h2>{titleOf(selected)}</h2>
+            {items.length > 0 && (
+              <span>
+                {items.length} {t('movies loaded')}
+              </span>
+            )}
+          </div>
+          {feed.isPending ? (
+            <Skeleton />
+          ) : feed.isError && !items.length ? (
+            <ErrorState error={feed.error} retry={() => void feed.refetch()} />
+          ) : items.length ? (
+            <DramaGrid items={items} />
+          ) : (
+            <Empty
+              title={t('No movies in this category')}
+              description={t('Please come back later.')}
+            />
+          )}
+          {feed.isFetchNextPageError && (
+            <ErrorState error={feed.error} retry={() => void feed.fetchNextPage()} />
+          )}
+          <LoadMore
+            hasNext={!!feed.hasNextPage}
+            loading={feed.isFetchingNextPage}
+            onLoad={() => {
+              if (!feed.isFetching) void feed.fetchNextPage();
+            }}
+          />
+        </>
       ) : (
         <>
-          <div className="category-list" aria-label="Thể loại phim">
-            <button
-              className={!selected ? 'active' : ''}
-              aria-pressed={!selected}
-              onClick={() => setParams({})}
-            >
-              Tất cả
-            </button>
-            {categories.map((category) => (
+          <div className="category-grid" aria-label={t('Categories')}>
+            {categories.map((category, index) => (
               <button
-                key={category}
-                className={selected === category ? 'active' : ''}
-                aria-pressed={selected === category}
-                onClick={() => setParams({ category })}
+                key={category.id}
+                className={`category-tile category-tile-${index % 6}`}
+                onClick={() => setParams({ category: category.id })}
               >
-                {category}
+                <span className="category-tile-index">{String(index + 1).padStart(2, '0')}</span>
+                <span className="category-tile-name">{titleOf(category)}</span>
+                <ChevronRight size={19} />
               </button>
             ))}
           </div>
-          <div className="section-heading">
-            <h2>{selected || 'Tất cả phim'}</h2>
-            <span>{filtered.length} phim đã tải</span>
-          </div>
-          {filtered.length ? (
-            <DramaGrid items={filtered} />
-          ) : (
-            <Empty
-              title="Chưa có phim trong chủ đề này"
-              description="Tải thêm phim để mở rộng danh sách chủ đề."
-            />
-          )}
-          {query.isFetchNextPageError && (
-            <ErrorState error={query.error} retry={() => void query.fetchNextPage()} />
-          )}
           <LoadMore
-            hasNext={!!query.hasNextPage}
-            loading={query.isFetchingNextPage}
+            hasNext={!!overview.hasNextPage}
+            loading={overview.isFetchingNextPage}
             onLoad={() => {
-              if (!query.isFetching) void query.fetchNextPage();
+              if (!overview.isFetching) void overview.fetchNextPage();
             }}
           />
         </>

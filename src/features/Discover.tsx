@@ -4,7 +4,9 @@ import { Search } from 'lucide-react';
 import { api } from '../services/api';
 import type { Page } from '../services/types';
 import { DramaGrid, Empty, ErrorState, LoadMore, Skeleton } from '../components/common';
+import { useLanguage } from '../i18n';
 export default function Discover() {
+  const { t } = useLanguage();
   const query = useInfiniteQuery({
     queryKey: ['catalog'],
     initialPageParam: '',
@@ -22,18 +24,18 @@ export default function Discover() {
     <div className="page-content">
       <section className="catalog-heading">
         <div>
-          <p className="eyebrow">MỘT CHÚT THỜI GIAN, MỘT CÂU CHUYỆN MỚI</p>
-          <h1>Phim ngắn, cảm xúc dài.</h1>
-          <p className="lead">Tìm câu chuyện tiếp theo và bắt đầu xem.</p>
+          <p className="eyebrow">{t('A little time, a new story')}</p>
+          <h1>{t('Short dramas, lasting feelings.')}</h1>
+          <p className="lead">{t('Find your next story and start watching.')}</p>
         </div>
         <Link className="catalog-search" to="/search">
           <Search size={21} />
-          <span>Tìm tên phim bạn yêu thích</span>
+          <span>{t('Search for a movie')}</span>
         </Link>
       </section>
       <div className="section-heading">
-        <h2>Khám phá phim</h2>
-        <span>Được đề xuất cho bạn</span>
+        <h2>{t('Discover movies')}</h2>
+        <span>{t('Recommended for you')}</span>
       </div>
       {query.isPending ? (
         <Skeleton />

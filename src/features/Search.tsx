@@ -5,7 +5,9 @@ import { Search as SearchIcon, X } from 'lucide-react';
 import { api } from '../services/api';
 import type { Page } from '../services/types';
 import { DramaGrid, Empty, ErrorState, LoadMore, Skeleton } from '../components/common';
+import { useLanguage } from '../i18n';
 export default function Search() {
+  const { t } = useLanguage();
   const [params, setParams] = useSearchParams();
   const q = params.get('q')?.trim() || '';
   const [input, setInput] = useState(q);
@@ -30,8 +32,8 @@ export default function Search() {
   return (
     <div className="page-content search-page">
       <div className="page-heading">
-        <p className="eyebrow">CÂU CHUYỆN NÀO DÀNH CHO BẠN?</p>
-        <h1>Tìm kiếm phim</h1>
+        <p className="eyebrow">{t('Movie search')}</p>
+        <h1>{t('Search')}</h1>
       </div>
       <form
         className="search-box"
@@ -42,10 +44,10 @@ export default function Search() {
       >
         <SearchIcon size={23} />
         <input
-          aria-label="Tên phim"
+          aria-label={t('Movie title')}
           autoFocus
           maxLength={150}
-          placeholder="Nhập tên phim…"
+          placeholder={t('Enter a title…')}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -53,7 +55,7 @@ export default function Search() {
           <button
             type="button"
             className="icon-button"
-            aria-label="Xóa từ khóa"
+            aria-label={t('Clear search')}
             onClick={() => {
               setInput('');
               setParams({});
@@ -63,18 +65,20 @@ export default function Search() {
           </button>
         )}
         <button className="button" type="submit" disabled={!input.trim()}>
-          Tìm kiếm
+          {t('Search movies')}
         </button>
       </form>
       {!q ? (
         <Empty
-          title="Bắt đầu với một tên phim"
-          description="Nhập từ khóa để tìm những câu chuyện bạn muốn xem."
+          title={t('Start with a movie title')}
+          description={t('Enter a keyword to find a story.')}
         />
       ) : (
         <>
           <div className="section-heading">
-            <h2>Kết quả cho “{q}”</h2>
+            <h2>
+              {t('Results for')} “{q}”
+            </h2>
           </div>
           {query.isPending ? (
             <Skeleton />
@@ -83,7 +87,7 @@ export default function Search() {
           ) : items.length ? (
             <DramaGrid items={items} />
           ) : (
-            <Empty title="Không tìm thấy phim" description="Thử tên phim hoặc từ khóa khác." />
+            <Empty title={t('No movies found')} description={t('Try another title or keyword.')} />
           )}
           {query.isFetchNextPageError && (
             <ErrorState error={query.error} retry={() => void query.fetchNextPage()} />

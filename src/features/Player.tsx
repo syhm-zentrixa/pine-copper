@@ -6,7 +6,9 @@ import { api } from '../services/api';
 import type { Detail, VideoSource } from '../services/types';
 import { ErrorState, Skeleton } from '../components/common';
 import MediaPlayer from '../components/MediaPlayer';
+import { useLanguage } from '../i18n';
 export default function Player() {
+  const { t } = useLanguage();
   const { id = '' } = useParams();
   const [params, setParams] = useSearchParams();
   const [refresh, setRefresh] = useState(0);
@@ -51,7 +53,7 @@ export default function Player() {
     <div className="page-content watch-page">
       <Link className="back-link" to="/discover">
         <ArrowLeft size={19} />
-        Danh sách phim
+        {t('Back to movies')}
       </Link>
       {detail.isPending ? (
         <Skeleton count={5} />
@@ -88,7 +90,7 @@ export default function Player() {
                 )
               ) : (
                 <div className="media-shell">
-                  <p className="unavailable">Tập này chưa được mở cho khách.</p>
+                  <p className="unavailable">{t('This episode is locked')}</p>
                 </div>
               )}
               <div className="episode-navigation">
@@ -98,7 +100,7 @@ export default function Player() {
                   onClick={() => previous && changeEpisode(previous.id)}
                 >
                   <ChevronLeft size={18} />
-                  Tập trước
+                  {t('Previous episode')}
                 </button>
                 <span>Tập {episode?.number || '—'}</span>
                 <button
@@ -106,7 +108,7 @@ export default function Player() {
                   disabled={!next}
                   onClick={() => next && changeEpisode(next.id)}
                 >
-                  Tập tiếp
+                  {t('Next episode')}
                   <ChevronRight size={18} />
                 </button>
               </div>
@@ -116,11 +118,13 @@ export default function Player() {
                   checked={autoNext}
                   onChange={(e) => setAutoNext(e.target.checked)}
                 />
-                Tự phát tập tiếp theo
+                {t('Play next automatically')}
               </label>
             </section>
             <aside className="watch-info">
-              <p className="eyebrow">{drama.episodeCount} TẬP · PHIM NGẮN</p>
+              <p className="eyebrow">
+                {drama.episodeCount} {t('Episodes')} · {t('Movie')}
+              </p>
               <h1>{drama.title}</h1>
               <div className="tags">
                 {drama.tags.map((tag) => (
@@ -131,7 +135,7 @@ export default function Player() {
               <div className="section-heading">
                 <h2>
                   <ListVideo size={20} />
-                  Danh sách tập
+                  {t('Episode list')}
                 </h2>
               </div>
               {drama.episodes.length > 30 && (
@@ -163,7 +167,9 @@ export default function Player() {
                 ))}
               </div>
               {drama.episodes.some((item) => !item.available) && (
-                <p className="availability-note">Một số tập chưa được Pine mở cho khách.</p>
+                <p className="availability-note">
+                  {t('Some episodes are not available to guests.')}
+                </p>
               )}
             </aside>
           </div>

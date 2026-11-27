@@ -1,6 +1,7 @@
 import { CircleAlert, Play, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { mediaUrl } from '../services/api';
+import { useLanguage } from '../i18n';
 import type { Drama } from '../services/types';
 export function Poster({
   src,
@@ -27,6 +28,7 @@ export function Poster({
   );
 }
 export function DramaGrid({ items }: { items: Drama[] }) {
+  const { t } = useLanguage();
   return (
     <div className="drama-grid">
       {items.map((drama, index) => (
@@ -36,7 +38,9 @@ export function DramaGrid({ items }: { items: Drama[] }) {
             <span className="poster-play">
               <Play size={25} fill="currentColor" />
             </span>
-            <span className="episode-badge">{drama.episodeCount} tập</span>
+            <span className="episode-badge">
+              {drama.episodeCount} {t('episodes')}
+            </span>
           </Link>
           <Link className="card-title" to={`/watch/${drama.id}`}>
             {drama.title}
@@ -48,8 +52,9 @@ export function DramaGrid({ items }: { items: Drama[] }) {
   );
 }
 export function Skeleton({ count = 10 }: { count?: number }) {
+  const { t } = useLanguage();
   return (
-    <div className="drama-grid" aria-busy="true" aria-label="Đang tải phim">
+    <div className="drama-grid" aria-busy="true" aria-label={t('Loading movies')}>
       {Array.from({ length: count }, (_, i) => (
         <div className="skeleton-card" key={i}>
           <div />
@@ -70,14 +75,15 @@ export function Empty({ title, description }: { title: string; description?: str
   );
 }
 export function ErrorState({ error, retry }: { error: unknown; retry: () => void }) {
+  const { t } = useLanguage();
   return (
     <div className="error-state" role="alert">
       <CircleAlert size={28} />
-      <h2>Chưa tải được nội dung</h2>
+      <h2>{t('Could not load content')}</h2>
       <p>{error instanceof Error ? error.message : 'Vui lòng thử lại.'}</p>
       <button className="button secondary" onClick={retry}>
         <RefreshCw size={17} />
-        Thử lại
+        {t('Try again')}
       </button>
     </div>
   );
@@ -91,10 +97,11 @@ export function LoadMore({
   loading: boolean;
   onLoad: () => void;
 }) {
+  const { t } = useLanguage();
   return hasNext ? (
     <div className="load-more">
       <button className="button secondary" disabled={loading} onClick={onLoad}>
-        {loading ? 'Đang tải…' : 'Xem thêm phim'}
+        {loading ? '…' : t('Load more movies')}
       </button>
     </div>
   ) : null;

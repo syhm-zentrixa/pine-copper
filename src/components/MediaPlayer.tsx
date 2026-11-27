@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { mediaUrl } from '../services/api';
 import type { VideoSource } from '../services/types';
+import { useLanguage } from '../i18n';
 export default function MediaPlayer({
   source,
   poster,
@@ -15,6 +16,7 @@ export default function MediaPlayer({
   onEnded: () => void;
   onRetry: () => void;
 }) {
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(true);
@@ -76,7 +78,7 @@ export default function MediaPlayer({
         preload="metadata"
         poster={mediaUrl(source.cover || poster)}
         onEnded={onEnded}
-        aria-label={`Đang xem tập ${source.number}`}
+        aria-label={`${t('Playing episode')} ${source.number}`}
       />
       {busy && !error && (
         <div className="media-loading" role="status" aria-label="Đang tải video">
@@ -85,7 +87,7 @@ export default function MediaPlayer({
       )}
       {error && (
         <div className="media-error" role="alert">
-          <p>Không phát được tập này. Vui lòng tải lại nguồn phát.</p>
+          <p>{t('Could not play this episode. Reload the source.')}</p>
           <button className="button secondary" onClick={onRetry}>
             <RefreshCw size={17} />
             Tải lại

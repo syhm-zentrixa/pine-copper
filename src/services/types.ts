@@ -25,4 +25,10 @@ export interface VideoSource extends Episode {
 export interface Page {
   items: Drama[];
   next: string | null;
+  categories?: Category[];
+}
+export interface Category {
+  id: string;
+  name: string;
+  scene: number;
 }
