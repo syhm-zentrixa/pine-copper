@@ -141,6 +141,27 @@ nav a:hover {
   margin: 0 auto;
   padding: 40px 32px 64px;
 }
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 34px;
+}
+.category-list button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #11151b;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.category-list button:hover,
+.category-list button.active {
+  color: var(--accent);
+  border-color: #c2ef9166;
+  background: #c2ef9110;
+}
 .catalog-heading {
   display: flex;
   align-items: center;

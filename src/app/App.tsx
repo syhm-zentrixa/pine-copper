@@ -1,7 +1,8 @@
 import { Component, type ReactNode } from 'react';
 import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom';
-import { Clapperboard, Search as SearchIcon } from 'lucide-react';
+import { Clapperboard, Search as SearchIcon, Shapes } from 'lucide-react';
 import Discover from '../features/Discover';
+import Categories from '../features/Categories';
 import Search from '../features/Search';
 import Player from '../features/Player';
 class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -40,6 +41,10 @@ export default function App() {
                   <Clapperboard size={18} />
                   Danh sách phim
                 </NavLink>
+                <NavLink to="/categories">
+                  <Shapes size={18} />
+                  Categories
+                </NavLink>
                 <NavLink to="/search">
                   <SearchIcon size={18} />
                   Tìm kiếm
@@ -50,6 +55,7 @@ export default function App() {
           <main id="main-content">
             <Routes>
               <Route path="/discover" element={<Discover />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/search" element={<Search />} />
               <Route path="/watch/:id" element={<Player />} />
               <Route path="*" element={<Navigate to="/discover" replace />} />
