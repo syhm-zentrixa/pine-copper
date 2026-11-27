@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 export default defineConfig({
+  base: process.env.GITHUB_PAGES === 'true' ? '/pine-copper/' : '/',
   cacheDir: process.env.DEV_CACHE_DIR || 'node_modules/.vite',
   plugins: [react()],
   server: {
