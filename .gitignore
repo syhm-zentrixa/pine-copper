@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+minis.zip
+*.local
+*.tsbuildinfo
+# Keep project documentation despite the Android repository's broad ignore rules.
+!README.md
+!MIGRATION.md
+!docs/
+!docs/screenshots/
+!docs/screenshots/*.jpg
+
+.data/
+
+!docs/*.md
+!tests/fixtures/*.ts
+!tests/fixtures/*.m3u8
