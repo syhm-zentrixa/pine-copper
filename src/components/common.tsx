@@ -1,5 +1,6 @@
 import { CircleAlert, Play, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { mediaUrl } from '../services/api';
 import type { Drama } from '../services/types';
 export function Poster({
   src,
@@ -12,10 +13,11 @@ export function Poster({
 }) {
   return (
     <img
-      src={src || '/assets/img_no_data.webp'}
+      src={mediaUrl(src) || '/assets/img_no_data.webp'}
       alt={title}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
+      fetchPriority={eager ? 'high' : 'auto'}
       referrerPolicy="no-referrer"
       onError={(e) => {
         e.currentTarget.onerror = null;
@@ -27,10 +29,10 @@ export function Poster({
 export function DramaGrid({ items }: { items: Drama[] }) {
   return (
     <div className="drama-grid">
-      {items.map((drama) => (
+      {items.map((drama, index) => (
         <article className="drama-card" key={drama.id}>
           <Link to={`/watch/${drama.id}`} className="poster-wrap" aria-label={`Xem ${drama.title}`}>
-            <Poster src={drama.cover} title={drama.title} />
+            <Poster src={drama.cover} title={drama.title} eager={index < 3} />
             <span className="poster-play">
               <Play size={25} fill="currentColor" />
             </span>

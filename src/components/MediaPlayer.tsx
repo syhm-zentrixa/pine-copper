@@ -74,7 +74,7 @@ export default function MediaPlayer({
         controls
         playsInline
         preload="metadata"
-        poster={source.cover || poster}
+        poster={mediaUrl(source.cover || poster)}
         onEnded={onEnded}
         aria-label={`Đang xem tập ${source.number}`}
       />

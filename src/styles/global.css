@@ -154,7 +154,10 @@ nav a:hover {
   background: #11151b;
   color: var(--muted);
   cursor: pointer;
-  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+  transition:
+    color 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
 }
 .category-list button:hover,
 .category-list button.active {
@@ -227,6 +230,10 @@ kbd {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 30px 22px;
+}
+.drama-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 350px;
 }
 .poster-wrap {
   display: block;
